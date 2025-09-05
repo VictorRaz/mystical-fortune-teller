@@ -94,11 +94,28 @@
             animation: float 6s ease-in-out infinite;
         }
         
-        .crystal-ball:hover {
+        .crystal-ball.clickable {
+            animation: float 6s ease-in-out infinite, pulse 2s infinite;
+            cursor: pointer;
+        }
+        
+        .crystal-ball.clickable:hover {
             transform: scale(1.05);
             box-shadow: 
                 0 0 80px rgba(138, 43, 226, 0.8),
                 inset 0 0 50px rgba(255, 255, 255, 0.3);
+        }
+        
+        .crystal-ball.processing {
+            animation: float 6s ease-in-out infinite, spin 3s linear infinite;
+            cursor: wait;
+            filter: brightness(1.2);
+        }
+        
+        .crystal-ball.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            animation: float 6s ease-in-out infinite;
         }
         
         .crystal-ball::before {
@@ -111,6 +128,11 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.4);
             filter: blur(10px);
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
         @keyframes float {
@@ -316,6 +338,45 @@
             }
         }
         
+        .crystal-instruction {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #ffd700;
+            margin: 1rem 0;
+            font-style: italic;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .audio-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: #ffd700;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .audio-control:hover {
+            border-color: rgba(255, 215, 0, 0.6);
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .audio-control.muted {
+            opacity: 0.6;
+        }
+        
         .hidden {
             display: none;
         }
@@ -332,18 +393,30 @@
 <body>
     <div class="particles" id="particles"></div>
     
+    <div class="audio-control" id="audioControl">🔊 Audio On</div>
+    
+    <audio id="ambientAudio" loop>
+        <source src="mystical-ambient.wav" type="audio/wav">
+    </audio>
+    
+    <audio id="chimeAudio">
+        <source src="crystal-chime.wav" type="audio/wav">
+    </audio>
+    
+    <audio id="revelationAudio">
+        <source src="revelation.wav" type="audio/wav">
+    </audio>
+    
     <div class="container">
         <h1 class="title">Mystical Fortune Teller</h1>
         <p class="subtitle">Ask the cosmic oracle your deepest questions</p>
         
-        <div class="crystal-ball pulse" id="crystalBall"></div>
+        <div class="crystal-ball clickable" id="crystalBall"></div>
+        <div class="crystal-instruction" id="crystalInstruction">Click the crystal ball to begin your mystical journey</div>
         
         <div class="card fade-in" id="welcomeCard">
             <div class="loading-text">
                 Welcome, dear seeker. The universe awaits your questions...
-            </div>
-            <div style="text-align: center;">
-                <button class="btn" id="startBtn">Begin Your Journey</button>
             </div>
         </div>
         
@@ -355,9 +428,6 @@
             <div class="loading-text">
                 Think of your question... concentrate on your heart's desire...
             </div>
-            <div style="text-align: center;">
-                <button class="btn" id="askBtn">Ask the Oracle</button>
-            </div>
         </div>
         
         <div class="card hidden" id="loadingCard">
@@ -366,10 +436,6 @@
         
         <div class="card hidden" id="answerCard">
             <div class="answer-text" id="answerText"></div>
-            <div style="text-align: center;">
-                <button class="btn" id="nextBtn">Next Question</button>
-                <button class="btn hidden" id="finishBtn">Complete Journey</button>
-            </div>
         </div>
         
         <div class="card hidden" id="completionCard">
@@ -443,6 +509,42 @@
 
         let currentQuestion = 1;
         let userAnswers = [];
+        let gameState = 'welcome'; // welcome, question, asking, answer, complete
+        let audioEnabled = true;
+
+        const crystalBall = document.getElementById('crystalBall');
+        const crystalInstruction = document.getElementById('crystalInstruction');
+        const audioControl = document.getElementById('audioControl');
+        const ambientAudio = document.getElementById('ambientAudio');
+        const chimeAudio = document.getElementById('chimeAudio');
+        const revelationAudio = document.getElementById('revelationAudio');
+
+        // Audio functions
+        function playSound(audioElement) {
+            if (audioEnabled && audioElement) {
+                audioElement.currentTime = 0;
+                audioElement.play().catch(e => console.log('Audio play failed:', e));
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            audioControl.textContent = audioEnabled ? '🔊 Audio On' : '🔇 Audio Off';
+            audioControl.classList.toggle('muted', !audioEnabled);
+            
+            if (audioEnabled) {
+                ambientAudio.play().catch(e => console.log('Ambient audio play failed:', e));
+            } else {
+                ambientAudio.pause();
+            }
+        }
+
+        function startAmbientMusic() {
+            if (audioEnabled) {
+                ambientAudio.volume = 0.3; // Keep ambient music quiet
+                ambientAudio.play().catch(e => console.log('Ambient audio play failed:', e));
+            }
+        }
 
         // Create floating particles
         function createParticles() {
@@ -476,6 +578,11 @@
             progressFill.style.width = percentage + '%';
         }
 
+        function updateCrystalBall(state, instruction) {
+            crystalBall.className = `crystal-ball ${state}`;
+            crystalInstruction.textContent = instruction;
+        }
+
         function typeText(element, text, callback) {
             element.textContent = '';
             element.classList.add('typing');
@@ -495,8 +602,37 @@
             return array[Math.floor(Math.random() * array.length)];
         }
 
+        function handleCrystalBallClick() {
+            playSound(chimeAudio);
+            switch (gameState) {
+                case 'welcome':
+                    startGame();
+                    break;
+                case 'question':
+                    askQuestion();
+                    break;
+                case 'answer':
+                    if (currentQuestion < 3) {
+                        nextQuestion();
+                    } else {
+                        completeJourney();
+                    }
+                    break;
+            }
+        }
+
+        function startGame() {
+            gameState = 'question';
+            showCard('questionCard');
+            updateCrystalBall('clickable', 'Click the crystal ball to ask the oracle');
+            startAmbientMusic();
+        }
+
         function askQuestion() {
+            gameState = 'asking';
             showCard('loadingCard');
+            updateCrystalBall('processing', 'The oracle is consulting the cosmic forces...');
+            
             const loadingText = document.getElementById('loadingText');
             const randomPhrase = getRandomItem(loadingPhrases);
             
@@ -510,7 +646,10 @@
         }
 
         function showAnswer() {
+            gameState = 'answer';
             showCard('answerCard');
+            playSound(revelationAudio);
+            
             const answerText = document.getElementById('answerText');
             const randomAnswer = getRandomItem(answers);
             userAnswers.push(randomAnswer);
@@ -518,15 +657,10 @@
             answerText.textContent = randomAnswer;
             answerText.classList.add('fade-in');
             
-            const nextBtn = document.getElementById('nextBtn');
-            const finishBtn = document.getElementById('finishBtn');
-            
             if (currentQuestion < 3) {
-                nextBtn.classList.remove('hidden');
-                finishBtn.classList.add('hidden');
+                updateCrystalBall('clickable', `Click the crystal ball for question ${currentQuestion + 1}`);
             } else {
-                nextBtn.classList.add('hidden');
-                finishBtn.classList.remove('hidden');
+                updateCrystalBall('clickable', 'Click the crystal ball to complete your journey');
             }
         }
 
@@ -534,13 +668,17 @@
             currentQuestion++;
             document.getElementById('questionCounter').textContent = `Question ${currentQuestion} of 3`;
             updateProgress();
+            gameState = 'question';
             showCard('questionCard');
+            updateCrystalBall('clickable', 'Click the crystal ball to ask the oracle');
         }
 
         function completeJourney() {
+            gameState = 'complete';
             showCard('completionCard');
             const wisdomQuote = document.getElementById('wisdomQuote');
             wisdomQuote.textContent = getRandomItem(wisdomQuotes);
+            updateCrystalBall('disabled', 'Your mystical journey is complete');
         }
 
         function shareJourney() {
@@ -563,29 +701,30 @@
         function restart() {
             currentQuestion = 1;
             userAnswers = [];
+            gameState = 'welcome';
             document.getElementById('questionCounter').textContent = 'Question 1 of 3';
             updateProgress();
             showCard('welcomeCard');
+            updateCrystalBall('clickable', 'Click the crystal ball to begin your mystical journey');
         }
 
         // Event listeners
-        document.getElementById('startBtn').addEventListener('click', () => {
-            showCard('questionCard');
-        });
-
-        document.getElementById('askBtn').addEventListener('click', askQuestion);
-        document.getElementById('nextBtn').addEventListener('click', nextQuestion);
-        document.getElementById('finishBtn').addEventListener('click', completeJourney);
+        crystalBall.addEventListener('click', handleCrystalBallClick);
+        audioControl.addEventListener('click', toggleAudio);
         document.getElementById('shareBtn').addEventListener('click', shareJourney);
         document.getElementById('restartBtn').addEventListener('click', restart);
 
-        // Crystal ball click effect
-        document.getElementById('crystalBall').addEventListener('click', () => {
-            const crystalBall = document.getElementById('crystalBall');
-            crystalBall.style.transform = 'scale(0.95)';
-            setTimeout(() => {
+        // Crystal ball visual feedback
+        crystalBall.addEventListener('mousedown', () => {
+            if (crystalBall.classList.contains('clickable')) {
+                crystalBall.style.transform = 'scale(0.95)';
+            }
+        });
+
+        crystalBall.addEventListener('mouseup', () => {
+            if (crystalBall.classList.contains('clickable')) {
                 crystalBall.style.transform = 'scale(1)';
-            }, 150);
+            }
         });
 
         // Initialize
