@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystical Fortune Teller - Discover Your Destiny</title>
+    <meta name="description" content="Ask the mystical oracle your deepest questions and receive profound answers from the cosmic realm. Three wishes await you.">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #16213e 100%);
+            background-image: url('mystical-background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #e8d5b7;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .title {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffd700, #ffb347, #daa520);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+            to { text-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+        
+        .crystal-ball {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(138, 43, 226, 0.6), rgba(75, 0, 130, 0.8));
+            box-shadow: 
+                0 0 50px rgba(138, 43, 226, 0.6),
+                inset 0 0 50px rgba(255, 255, 255, 0.2);
+            margin: 2rem auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .crystal-ball:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 80px rgba(138, 43, 226, 0.8),
+                inset 0 0 50px rgba(255, 255, 255, 0.3);
+        }
+        
+        .crystal-ball::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 30%;
+            height: 30%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            filter: blur(10px);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1rem 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .card:hover {
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .question-counter {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+        
+        .loading-text {
+            font-size: 1.3rem;
+            text-align: center;
+            font-style: italic;
+            color: #b19cd9;
+            margin: 2rem 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .answer-text {
+            font-size: 1.4rem;
+            text-align: center;
+            line-height: 1.6;
+            color: #e8d5b7;
+            margin: 2rem 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #8a2be2, #4b0082);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+            margin: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.5);
+            background: linear-gradient(45deg, #9932cc, #6a0dad);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffb347);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .share-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .share-btn {
+            background: linear-gradient(45deg, #1da1f2, #0d8bd9);
+            margin: 0.5rem;
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.6);
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        
+        .typing {
+            overflow: hidden;
+            border-right: 2px solid #ffd700;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #ffd700; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .crystal-ball {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .card {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .wisdom-quote {
+            font-style: italic;
+            text-align: center;
+            color: #b19cd9;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <h1 class="title">Mystical Fortune Teller</h1>
+        <p class="subtitle">Ask the cosmic oracle your deepest questions</p>
+        
+        <div class="crystal-ball pulse" id="crystalBall"></div>
+        
+        <div class="card fade-in" id="welcomeCard">
+            <div class="loading-text">
+                Welcome, dear seeker. The universe awaits your questions...
+            </div>
+            <div style="text-align: center;">
+                <button class="btn" id="startBtn">Begin Your Journey</button>
+            </div>
+        </div>
+        
+        <div class="card hidden" id="questionCard">
+            <div class="question-counter" id="questionCounter">Question 1 of 3</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 33.33%"></div>
+            </div>
+            <div class="loading-text">
+                Think of your question... concentrate on your heart's desire...
+            </div>
+            <div style="text-align: center;">
+                <button class="btn" id="askBtn">Ask the Oracle</button>
+            </div>
+        </div>
+        
+        <div class="card hidden" id="loadingCard">
+            <div class="loading-text typing" id="loadingText"></div>
+        </div>
+        
+        <div class="card hidden" id="answerCard">
+            <div class="answer-text" id="answerText"></div>
+            <div style="text-align: center;">
+                <button class="btn" id="nextBtn">Next Question</button>
+                <button class="btn hidden" id="finishBtn">Complete Journey</button>
+            </div>
+        </div>
+        
+        <div class="card hidden" id="completionCard">
+            <div class="loading-text">
+                Your three wishes have been fulfilled. The cosmic wisdom has been shared.
+            </div>
+            <div class="wisdom-quote" id="wisdomQuote">
+                "The future belongs to those who believe in the beauty of their dreams."
+            </div>
+            <div class="share-section">
+                <button class="btn share-btn" id="shareBtn">Share Your Journey</button>
+                <button class="btn" id="restartBtn">Ask Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loadingPhrases = [
+            "Gazing into the swirling mists of fate...",
+            "The oracle whispers through the veil...",
+            "Tuning into the secret currents of destiny...",
+            "Shuffling the ancient cards of possibility...",
+            "Summoning the echoes of time's hidden paths...",
+            "Peering through the crystal depths of the unknown...",
+            "Listening to the murmurs from the spirit realm...",
+            "Tracing the ethereal threads of tomorrow's weave...",
+            "Waiting for the stars to align in your favor...",
+            "Honing in on the cryptic runes of chance...",
+            "Calling forth the shadows of probability...",
+            "Reading the ripples in the tea leaves of fate...",
+            "Balancing the scales of cosmic justice...",
+            "Charting a course through the labyrinth of secrets...",
+            "Unlocking the seals on the scrolls of destiny...",
+            "Casting the sacred stones of future's promise...",
+            "Dancing with the flames of hidden knowledge...",
+            "Hearing the heartbeat of the universe's mystery...",
+            "Translating the celestial symphony into truth...",
+            "Walking the mist-shrouded path to revelation..."
+        ];
+
+        const answers = [
+            "The stars shine brightly in your favor, dear one.",
+            "The spirits gently whisper truth and promise.",
+            "In this moment, doubt melts away under love's light.",
+            "The cosmic winds carry a definite 'yes' just for you.",
+            "Trust the unseen forces guiding your heart's desire.",
+            "Your ethereal visions show a path blossoming with hope.",
+            "Celestial patterns align to bless your feelings with promise.",
+            "The portents glow warmly, painting a future filled with joy.",
+            "The universe smiles upon your heart's wish.",
+            "The omens sing softly — the answer you seek is yes.",
+            "The mists murmur, urging patience — clarity will come soon.",
+            "The cards ask you to wait a little longer, dear soul.",
+            "For now, the veil hides what your heart longs to know.",
+            "Focus your spirit anew; the truth is near to unfold.",
+            "Look within yourself and ask your question once more.",
+            "The fates gently caution: take care, and trust your instincts.",
+            "Dark whispers fade—they hold no power over your light.",
+            "The oracle's voice gently warns to be wise in your heart's quest.",
+            "Though clouds gather, your spirit's fire is fierce and bright.",
+            "The heavens understand your longing, even if doubt lingers today."
+        ];
+
+        const wisdomQuotes = [
+            "The future belongs to those who believe in the beauty of their dreams.",
+            "What lies behind us and what lies before us are tiny matters compared to what lies within us.",
+            "The only way to make sense out of change is to plunge into it, move with it, and join the dance.",
+            "Your task is not to seek for love, but merely to seek and find all the barriers within yourself that you have built against it.",
+            "The cave you fear to enter holds the treasure you seek."
+        ];
+
+        let currentQuestion = 1;
+        let userAnswers = [];
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function hideAllCards() {
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.add('hidden');
+            });
+        }
+
+        function showCard(cardId) {
+            hideAllCards();
+            const card = document.getElementById(cardId);
+            card.classList.remove('hidden');
+            card.classList.add('fade-in');
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const percentage = (currentQuestion / 3) * 100;
+            progressFill.style.width = percentage + '%';
+        }
+
+        function typeText(element, text, callback) {
+            element.textContent = '';
+            element.classList.add('typing');
+            let i = 0;
+            const timer = setInterval(() => {
+                element.textContent += text.charAt(i);
+                i++;
+                if (i > text.length) {
+                    clearInterval(timer);
+                    element.classList.remove('typing');
+                    if (callback) callback();
+                }
+            }, 50);
+        }
+
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function askQuestion() {
+            showCard('loadingCard');
+            const loadingText = document.getElementById('loadingText');
+            const randomPhrase = getRandomItem(loadingPhrases);
+            
+            typeText(loadingText, randomPhrase, () => {
+                // Wait 2-7 seconds like the original C++ app
+                const waitTime = 2000 + Math.random() * 5000;
+                setTimeout(() => {
+                    showAnswer();
+                }, waitTime);
+            });
+        }
+
+        function showAnswer() {
+            showCard('answerCard');
+            const answerText = document.getElementById('answerText');
+            const randomAnswer = getRandomItem(answers);
+            userAnswers.push(randomAnswer);
+            
+            answerText.textContent = randomAnswer;
+            answerText.classList.add('fade-in');
+            
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            
+            if (currentQuestion < 3) {
+                nextBtn.classList.remove('hidden');
+                finishBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.add('hidden');
+                finishBtn.classList.remove('hidden');
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            document.getElementById('questionCounter').textContent = `Question ${currentQuestion} of 3`;
+            updateProgress();
+            showCard('questionCard');
+        }
+
+        function completeJourney() {
+            showCard('completionCard');
+            const wisdomQuote = document.getElementById('wisdomQuote');
+            wisdomQuote.textContent = getRandomItem(wisdomQuotes);
+        }
+
+        function shareJourney() {
+            const shareText = `I just consulted the Mystical Fortune Teller and received cosmic wisdom! ✨ Try it yourself: ${window.location.href}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mystical Fortune Teller',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback to copying to clipboard
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('Share text copied to clipboard!');
+                });
+            }
+        }
+
+        function restart() {
+            currentQuestion = 1;
+            userAnswers = [];
+            document.getElementById('questionCounter').textContent = 'Question 1 of 3';
+            updateProgress();
+            showCard('welcomeCard');
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', () => {
+            showCard('questionCard');
+        });
+
+        document.getElementById('askBtn').addEventListener('click', askQuestion);
+        document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+        document.getElementById('finishBtn').addEventListener('click', completeJourney);
+        document.getElementById('shareBtn').addEventListener('click', shareJourney);
+        document.getElementById('restartBtn').addEventListener('click', restart);
+
+        // Crystal ball click effect
+        document.getElementById('crystalBall').addEventListener('click', () => {
+            const crystalBall = document.getElementById('crystalBall');
+            crystalBall.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                crystalBall.style.transform = 'scale(1)';
+            }, 150);
+        });
+
+        // Initialize
+        createParticles();
+        updateProgress();
+    </script>
+</body>
+</html>
+
