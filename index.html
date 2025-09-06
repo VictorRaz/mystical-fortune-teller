@@ -352,29 +352,74 @@
             to { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
         }
         
-        .audio-control {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            border-radius: 50px;
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1000;
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffb347, #daa520);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-top: 3px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-dots {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: loadingDots 1.4s ease-in-out infinite both;
+        }
+        
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dot:nth-child(3) { animation-delay: 0s; }
+        
+        @keyframes loadingDots {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .loading-percentage {
             color: #ffd700;
-            font-size: 0.9rem;
-            backdrop-filter: blur(10px);
-        }
-        
-        .audio-control:hover {
-            border-color: rgba(255, 215, 0, 0.6);
-            background: rgba(0, 0, 0, 0.8);
-        }
-        
-        .audio-control.muted {
-            opacity: 0.6;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
         }
         
         .hidden {
@@ -392,20 +437,6 @@
 </head>
 <body>
     <div class="particles" id="particles"></div>
-    
-    <div class="audio-control" id="audioControl">🔊 Audio On</div>
-    
-    <audio id="ambientAudio" loop>
-        <source src="mystical-ambient.wav" type="audio/wav">
-    </audio>
-    
-    <audio id="chimeAudio">
-        <source src="crystal-chime.wav" type="audio/wav">
-    </audio>
-    
-    <audio id="revelationAudio">
-        <source src="revelation.wav" type="audio/wav">
-    </audio>
     
     <div class="container">
         <h1 class="title">Mystical Fortune Teller</h1>
@@ -431,7 +462,19 @@
         </div>
         
         <div class="card hidden" id="loadingCard">
-            <div class="loading-text typing" id="loadingText"></div>
+            <div class="loading-text" id="loadingText"></div>
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-bar">
+                    <div class="loading-progress" id="loadingProgress"></div>
+                </div>
+                <div class="loading-percentage" id="loadingPercentage">0%</div>
+                <div class="loading-dots">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            </div>
         </div>
         
         <div class="card hidden" id="answerCard">
@@ -477,26 +520,26 @@
         ];
 
         const answers = [
-            "The stars shine brightly in your favor, dear one.",
-            "The spirits gently whisper truth and promise.",
-            "In this moment, doubt melts away under love's light.",
-            "The cosmic winds carry a definite 'yes' just for you.",
-            "Trust the unseen forces guiding your heart's desire.",
-            "Your ethereal visions show a path blossoming with hope.",
-            "Celestial patterns align to bless your feelings with promise.",
-            "The portents glow warmly, painting a future filled with joy.",
-            "The universe smiles upon your heart's wish.",
-            "The omens sing softly — the answer you seek is yes.",
-            "The mists murmur, urging patience — clarity will come soon.",
-            "The cards ask you to wait a little longer, dear soul.",
-            "For now, the veil hides what your heart longs to know.",
-            "Focus your spirit anew; the truth is near to unfold.",
-            "Look within yourself and ask your question once more.",
-            "The fates gently caution: take care, and trust your instincts.",
-            "Dark whispers fade—they hold no power over your light.",
-            "The oracle's voice gently warns to be wise in your heart's quest.",
-            "Though clouds gather, your spirit's fire is fierce and bright.",
-            "The heavens understand your longing, even if doubt lingers today."
+            "The path ahead shines with opportunity. Trust your instincts and take that important step you've been considering.",
+            "A positive change is approaching your life. Embrace new experiences and remain open to unexpected possibilities.",
+            "Your hard work and dedication will soon bear fruit. The universe recognizes your efforts and rewards are coming.",
+            "Someone close to you holds the key to your question. Seek guidance from those who care about your wellbeing.",
+            "The timing is perfect for new beginnings. Don't let fear hold you back from pursuing what truly matters to you.",
+            "Your intuition is stronger than you realize. The answer you seek already exists within your heart and mind.",
+            "A challenge you're facing will teach you valuable lessons. View obstacles as stepping stones to greater wisdom.",
+            "Love and support surround you, even when you can't see it. Reach out to others and strengthen your connections.",
+            "Financial or material improvements are on the horizon. Your practical efforts will lead to tangible benefits.",
+            "Your creative energy is at its peak. This is an excellent time to express yourself and share your unique gifts.",
+            "Patience will serve you well in this situation. Some things need time to develop naturally and beautifully.",
+            "A decision you've been postponing needs your attention. Trust yourself to make the right choice for your future.",
+            "Your health and wellbeing deserve more focus. Small positive changes will lead to significant improvements.",
+            "An old friendship or relationship may be renewed. Past connections could bring unexpected joy back into your life.",
+            "Your professional life is entering a phase of growth. New opportunities will align with your skills and passions.",
+            "Travel or a change of environment will bring fresh perspective. Sometimes distance provides the clarity you need.",
+            "Your family relationships are strengthening. Open communication will resolve any lingering misunderstandings.",
+            "A learning opportunity will present itself soon. Embrace knowledge and skills that will serve your long-term goals.",
+            "Your generosity and kindness will return to you multiplied. Continue to help others and spread positive energy.",
+            "The answer to your question will become clear within the next few weeks. Stay alert to signs and synchronicities."
         ];
 
         const wisdomQuotes = [
@@ -510,40 +553,50 @@
         let currentQuestion = 1;
         let userAnswers = [];
         let gameState = 'welcome'; // welcome, question, asking, answer, complete
-        let audioEnabled = true;
+        let usedAnswers = []; // Track used answers for better randomization
 
         const crystalBall = document.getElementById('crystalBall');
         const crystalInstruction = document.getElementById('crystalInstruction');
-        const audioControl = document.getElementById('audioControl');
-        const ambientAudio = document.getElementById('ambientAudio');
-        const chimeAudio = document.getElementById('chimeAudio');
-        const revelationAudio = document.getElementById('revelationAudio');
 
-        // Audio functions
-        function playSound(audioElement) {
-            if (audioEnabled && audioElement) {
-                audioElement.currentTime = 0;
-                audioElement.play().catch(e => console.log('Audio play failed:', e));
-            }
-        }
-
-        function toggleAudio() {
-            audioEnabled = !audioEnabled;
-            audioControl.textContent = audioEnabled ? '🔊 Audio On' : '🔇 Audio Off';
-            audioControl.classList.toggle('muted', !audioEnabled);
+        // Loading bar functions
+        function animateLoadingBar(callback) {
+            const loadingProgress = document.getElementById('loadingProgress');
+            const loadingPercentage = document.getElementById('loadingPercentage');
+            let progress = 0;
             
-            if (audioEnabled) {
-                ambientAudio.play().catch(e => console.log('Ambient audio play failed:', e));
-            } else {
-                ambientAudio.pause();
-            }
+            const interval = setInterval(() => {
+                progress += Math.random() * 15 + 5; // Random increment between 5-20%
+                if (progress > 100) progress = 100;
+                
+                loadingProgress.style.width = progress + '%';
+                loadingPercentage.textContent = Math.floor(progress) + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(callback, 500); // Small delay after completion
+                }
+            }, 200 + Math.random() * 300); // Random timing between 200-500ms
         }
 
-        function startAmbientMusic() {
-            if (audioEnabled) {
-                ambientAudio.volume = 0.3; // Keep ambient music quiet
-                ambientAudio.play().catch(e => console.log('Ambient audio play failed:', e));
+        // Improved randomization function
+        function getRandomAnswer() {
+            // If we've used all answers, reset the used array
+            if (usedAnswers.length >= answers.length) {
+                usedAnswers = [];
             }
+            
+            // Get available answers
+            const availableAnswers = answers.filter((_, index) => !usedAnswers.includes(index));
+            
+            // Select random answer from available ones
+            const randomIndex = Math.floor(Math.random() * availableAnswers.length);
+            const selectedAnswer = availableAnswers[randomIndex];
+            
+            // Mark this answer as used
+            const originalIndex = answers.indexOf(selectedAnswer);
+            usedAnswers.push(originalIndex);
+            
+            return selectedAnswer;
         }
 
         // Create floating particles
@@ -603,7 +656,6 @@
         }
 
         function handleCrystalBallClick() {
-            playSound(chimeAudio);
             switch (gameState) {
                 case 'welcome':
                     startGame();
@@ -625,7 +677,6 @@
             gameState = 'question';
             showCard('questionCard');
             updateCrystalBall('clickable', 'Click the crystal ball to ask the oracle');
-            startAmbientMusic();
         }
 
         function askQuestion() {
@@ -636,22 +687,24 @@
             const loadingText = document.getElementById('loadingText');
             const randomPhrase = getRandomItem(loadingPhrases);
             
+            // Reset loading bar
+            document.getElementById('loadingProgress').style.width = '0%';
+            document.getElementById('loadingPercentage').textContent = '0%';
+            
             typeText(loadingText, randomPhrase, () => {
-                // Wait 2-7 seconds like the original C++ app
-                const waitTime = 2000 + Math.random() * 5000;
-                setTimeout(() => {
+                // Start loading bar animation
+                animateLoadingBar(() => {
                     showAnswer();
-                }, waitTime);
+                });
             });
         }
 
         function showAnswer() {
             gameState = 'answer';
             showCard('answerCard');
-            playSound(revelationAudio);
             
             const answerText = document.getElementById('answerText');
-            const randomAnswer = getRandomItem(answers);
+            const randomAnswer = getRandomAnswer(); // Use improved randomization
             userAnswers.push(randomAnswer);
             
             answerText.textContent = randomAnswer;
@@ -701,6 +754,7 @@
         function restart() {
             currentQuestion = 1;
             userAnswers = [];
+            usedAnswers = []; // Reset used answers for better randomization
             gameState = 'welcome';
             document.getElementById('questionCounter').textContent = 'Question 1 of 3';
             updateProgress();
@@ -710,7 +764,6 @@
 
         // Event listeners
         crystalBall.addEventListener('click', handleCrystalBallClick);
-        audioControl.addEventListener('click', toggleAudio);
         document.getElementById('shareBtn').addEventListener('click', shareJourney);
         document.getElementById('restartBtn').addEventListener('click', restart);
 
